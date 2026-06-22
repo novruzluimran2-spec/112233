@@ -16,12 +16,14 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:32'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user = User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $data['phone'],
             'password' => $data['password'],
             'role' => 'customer',
         ]);
@@ -88,13 +90,14 @@ class AuthController extends Controller
         ]);
     }
 
-    /** @return array{id: int, name: string, email: string} */
+    /** @return array{id: int, name: string, email: string, phone: string|null} */
     private function userPayload(User $user): array
     {
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'phone' => $user->phone,
         ];
     }
 }

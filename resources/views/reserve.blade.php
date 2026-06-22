@@ -39,7 +39,7 @@
      <div class="profile__menu" id="profileMenu" role="menu" hidden>
       <button class="profile__item" role="menuitem" type="button" id="profileLogin">Войти / регистрация</button>
       <button class="profile__item" role="menuitem" type="button" id="profileOrders">Мои заказы</button>
-      <a class="profile__item" role="menuitem" href="/reserve.html">Мои бронирования</a>
+      <button class="profile__item" role="menuitem" type="button" id="profileReservations">Мои бронирования</button>
       <a class="profile__item" role="menuitem" href="/contacts.html">Связаться с нами</a>
      </div>
     </div>
@@ -92,7 +92,7 @@
        <button class="btn btn--primary" type="submit">Забронировать</button>
        <button class="btn btn--ghost" type="button" id="downloadIcsBtn">Скачать .ics</button>
       </div>
-      <p class="muted small"></p>
+      <p class="muted small">Для бронирования нужен аккаунт — при отправке откроется регистрация или вход.</p>
      </form>
      <div class="card">
       <h3>Условия</h3>
@@ -112,6 +112,18 @@
        </div>
       </div>
      </div>
+    </div>
+   </div>
+  </section>
+
+  <section class="section section--alt" id="myReservations">
+   <div class="container">
+    <div class="section__head">
+     <h2>Мои бронирования</h2>
+     <p class="muted">Список броней в вашем аккаунте после входа.</p>
+    </div>
+    <div class="card">
+     <div class="ordersList" id="myReservationsList" aria-live="polite"></div>
     </div>
    </div>
   </section>

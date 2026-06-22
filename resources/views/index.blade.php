@@ -58,7 +58,7 @@
      <div class="profile__menu" id="profileMenu" role="menu" hidden>
       <button class="profile__item" role="menuitem" type="button" id="profileLogin">Войти / регистрация</button>
       <button class="profile__item" role="menuitem" type="button" id="profileOrders">Мои заказы</button>
-      <a class="profile__item" role="menuitem" href="#reserve">Мои бронирования</a>
+      <button class="profile__item" role="menuitem" type="button" id="profileReservations">Мои бронирования</button>
       <a class="profile__item" role="menuitem" href="#contacts">Связаться с нами</a>
      </div>
     </div>

@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
@@ -24,12 +25,15 @@ class ReservationController extends Controller
         $date = Carbon::parse($data['date'])->startOfDay();
         if ($date->lt(now()->startOfDay())) {
             return response()->json([
-                'message' => 'Date must be today or later.',
-                'errors' => ['date' => ['Date must be today or later.']],
+                'message' => 'Дата бронирования не может быть в прошлом.',
+                'errors' => ['date' => ['Дата бронирования не может быть в прошлом.']],
             ], 422);
         }
 
+        $user = $request->user();
+
         $reservation = Reservation::query()->create([
+            'user_id' => $user->id,
             'name' => $data['name'],
             'phone' => $data['phone'],
             'date' => $data['date'],

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -29,8 +30,8 @@ class OrderController extends Controller
 
         if (($data['delivery_type'] ?? null) === 'delivery' && empty(trim((string) ($data['address'] ?? '')))) {
             return response()->json([
-                'message' => 'Address is required for delivery.',
-                'errors' => ['address' => ['Address is required for delivery.']],
+                'message' => 'Укажите адрес доставки.',
+                'errors' => ['address' => ['Укажите адрес доставки.']],
             ], 422);
         }
 
@@ -51,7 +52,7 @@ class OrderController extends Controller
 
         if ($menuItems->count() !== $items->count()) {
             return response()->json([
-                'message' => 'Some items are not available.',
+                'message' => 'Некоторые блюда недоступны.',
             ], 422);
         }
 
@@ -64,8 +65,9 @@ class OrderController extends Controller
             $total += ((float) $mi->price) * $row['qty'];
         }
 
-        $order = DB::transaction(function () use ($data, $items, $byId, $total) {
+        $order = DB::transaction(function () use ($data, $items, $byId, $total, $request) {
             $order = Order::query()->create([
+                'user_id' => $request->user()->id,
                 'customer_name' => $data['customer_name'],
                 'phone' => $data['phone'],
                 'delivery_type' => $data['delivery_type'],

@@ -39,7 +39,7 @@
      <div class="profile__menu" id="profileMenu" role="menu" hidden>
       <button class="profile__item" role="menuitem" type="button" id="profileLogin">Войти / регистрация</button>
       <button class="profile__item" role="menuitem" type="button" id="profileOrders">Мои заказы</button>
-      <a class="profile__item" role="menuitem" href="/reserve.html">Мои бронирования</a>
+      <button class="profile__item" role="menuitem" type="button" id="profileReservations">Мои бронирования</button>
       <a class="profile__item" role="menuitem" href="/contacts.html">Связаться с нами</a>
      </div>
     </div>
@@ -83,7 +83,7 @@
       <ol class="steps">
        <li>Выберите блюда в меню и добавьте в корзину.</li>
        <li>Откройте корзину, укажите способ получения.</li>
-       <li>Нажмите “Оформить” — получите номер заказа (сохраняется в браузере).</li>
+       <li>Нажмите «Оформить» — для подтверждения нужен аккаунт (вход или регистрация).</li>
       </ol>
       <div class="miniStats">
        <div class="miniStat"><div class="miniStat__k">Доставка</div><div class="miniStat__v">от 199 ₽</div></div>
@@ -94,7 +94,7 @@
      </div>
      <div class="card">
       <h3>Последние заказы</h3>
-      <p class="muted small">История хранится в вашем браузере.</p>
+      <p class="muted small" id="ordersHistoryHint">Войдите, чтобы видеть заказы на всех устройствах. Без входа история хранится в браузере.</p>
       <div class="ordersList" id="ordersList" aria-live="polite"></div>
       <button class="btn btn--ghost btn--wide" type="button" id="clearOrdersBtn">Очистить историю заказов</button>
      </div>

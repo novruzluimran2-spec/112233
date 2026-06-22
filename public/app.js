@@ -17,10 +17,20 @@ const API = {
   menu: "/api/menu",
   orders: "/api/orders",
   reservations: "/api/reservations",
+  myOrders: "/api/my/orders",
+  myReservations: "/api/my/reservations",
   register: "/api/register",
   login: "/api/login",
   logout: "/api/logout",
   user: "/api/user",
+};
+
+const STATUS_LABEL = {
+  new: "Новый",
+  accepted: "Принят",
+  confirmed: "Подтверждён",
+  completed: "Выполнен",
+  cancelled: "Отменён",
 };
 
 const RUB = (n) => `${Math.round(n)} ₽`;
@@ -152,8 +162,10 @@ const els = {
 
   ordersList: document.getElementById("ordersList"),
   clearOrdersBtn: document.getElementById("clearOrdersBtn"),
+  ordersHistoryHint: document.getElementById("ordersHistoryHint"),
 
   reserveForm: document.getElementById("reserveForm"),
+  myReservationsList: document.getElementById("myReservationsList"),
   downloadIcsBtn: document.getElementById("downloadIcsBtn"),
 
   toast: document.getElementById("toast"),
@@ -174,6 +186,9 @@ let state = {
   theme: localStorage.getItem(STORAGE.theme) || "dark",
   fulfillment: "delivery",
   user: null,
+  serverOrders: [],
+  serverReservations: [],
+  pendingAction: null,
 };
 
 const REVIEWS = [
@@ -370,12 +385,18 @@ function renderCart(){
 function renderOrders(){
   if (!els.ordersList) return;
   els.ordersList.innerHTML = "";
-  if (!state.orders.length){
-    els.ordersList.innerHTML = `<div class="orderItem"><strong>Пока нет заказов</strong><div class="orderItem__sub">Оформите заказ — он появится здесь.</div></div>`;
+
+  const orders = state.user ? state.serverOrders : state.orders;
+  if (!orders.length){
+    const hint = state.user
+      ? "Оформите заказ — он появится в вашем аккаунте."
+      : "Оформите заказ — он появится здесь. Войдите, чтобы видеть историю на всех устройствах.";
+    els.ordersList.innerHTML = `<div class="orderItem"><strong>Пока нет заказов</strong><div class="orderItem__sub">${hint}</div></div>`;
     return;
   }
 
-  state.orders.slice(0, 6).forEach(o => {
+  orders.slice(0, 6).forEach(o => {
+    const status = o.status ? ` • ${STATUS_LABEL[o.status] || o.status}` : "";
     const el = document.createElement("div");
     el.className = "orderItem";
     el.innerHTML = `
@@ -383,10 +404,39 @@ function renderOrders(){
         <span>Заказ #${escapeHtml(o.number)}</span>
         <span>${escapeHtml(o.total)}</span>
       </div>
-      <div class="orderItem__sub">${escapeHtml(o.when)} • ${escapeHtml(o.fulfillment)}</div>
+      <div class="orderItem__sub">${escapeHtml(o.when)} • ${escapeHtml(o.fulfillment)}${escapeHtml(status)}</div>
       <div class="orderItem__sub">${escapeHtml(o.itemsSummary)}</div>
     `;
     els.ordersList.appendChild(el);
+  });
+}
+
+function renderMyReservations(){
+  if (!els.myReservationsList) return;
+  els.myReservationsList.innerHTML = "";
+
+  if (!state.user){
+    els.myReservationsList.innerHTML = `<div class="orderItem"><strong>Войдите в аккаунт</strong><div class="orderItem__sub">После входа здесь появятся ваши бронирования.</div></div>`;
+    return;
+  }
+
+  if (!state.serverReservations.length){
+    els.myReservationsList.innerHTML = `<div class="orderItem"><strong>Пока нет бронирований</strong><div class="orderItem__sub">Заполните форму выше — бронь сохранится в аккаунте.</div></div>`;
+    return;
+  }
+
+  state.serverReservations.slice(0, 10).forEach(r => {
+    const status = STATUS_LABEL[r.status] || r.status;
+    const el = document.createElement("div");
+    el.className = "orderItem";
+    el.innerHTML = `
+      <div class="orderItem__top">
+        <span>${escapeHtml(r.date)} в ${escapeHtml(r.time)}</span>
+        <span>${escapeHtml(r.guests)} гост.</span>
+      </div>
+      <div class="orderItem__sub">${escapeHtml(status)}${r.note ? ` • ${escapeHtml(r.note)}` : ""}</div>
+    `;
+    els.myReservationsList.appendChild(el);
   });
 }
 
@@ -402,6 +452,7 @@ function render(){
   if (els.menuGrid) renderMenu();
   if (els.cartList || els.cartTotals || els.cartEmpty) renderCart();
   if (els.ordersList) renderOrders();
+  if (els.myReservationsList) renderMyReservations();
 }
 
 /* ---------- interactions ---------- */
@@ -460,12 +511,38 @@ function closeDishModal(){
   state.dishModalId = null;
 }
 
+function prefillUserForms(){
+  const u = state.user;
+  if (!u) return;
+  if (els.checkoutForm?.name) els.checkoutForm.name.value = u.name || "";
+  if (els.checkoutForm?.phone) els.checkoutForm.phone.value = u.phone || "";
+  if (els.reserveForm?.name) els.reserveForm.name.value = u.name || "";
+  if (els.reserveForm?.phone) els.reserveForm.phone.value = u.phone || "";
+}
+
+function handleCheckoutClick(){
+  const items = cartItems();
+  if (!items.length){
+    toast("Корзина пустая");
+    return;
+  }
+  if (!state.user){
+    state.pendingAction = "checkout";
+    closeDrawer();
+    openAuthModal(true);
+    toast("Войдите или зарегистрируйтесь, чтобы оформить заказ");
+    return;
+  }
+  openCheckout();
+}
+
 function openCheckout(){
   const items = cartItems();
   if (!items.length){
     toast("Корзина пустая");
     return;
   }
+  prefillUserForms();
   const { grand } = computeTotals();
   if (els.checkoutTotal) els.checkoutTotal.textContent = RUB(grand);
 
@@ -561,7 +638,12 @@ function downloadFile(filename, content, mime="text/plain"){
 async function submitOrderToApi(payload){
   const res = await fetch(API.orders, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-XSRF-TOKEN": csrfToken(),
+    },
     body: JSON.stringify(payload)
   });
 
@@ -578,7 +660,12 @@ async function submitOrderToApi(payload){
 async function submitReservationToApi(payload){
   const res = await fetch(API.reservations, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-XSRF-TOKEN": csrfToken(),
+    },
     body: JSON.stringify(payload)
   });
 
@@ -645,6 +732,7 @@ function ensureAuthModal(){
         </form>
         <form class="form" id="authRegisterForm" hidden>
           <label>Имя<input name="name" autocomplete="name" required minlength="2" placeholder="Ваше имя"/></label>
+          <label>Телефон<input name="phone" inputmode="tel" autocomplete="tel" required placeholder="+7 (___) ___-__-__"/></label>
           <label>Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"/></label>
           <label>Пароль<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="Не менее 8 символов"/></label>
           <label>Повтор пароля<input name="password_confirmation" type="password" autocomplete="new-password" required minlength="8"/></label>
@@ -683,9 +771,7 @@ function ensureAuthModal(){
         password: String(fd.get("password") || ""),
       });
       state.user = data.user;
-      renderProfile();
-      closeAuthModal();
-      toast(`Добро пожаловать, ${state.user.name}!`);
+      await afterAuthSuccess(`Добро пожаловать, ${state.user.name}!`);
     }catch(err){
       toast(err?.message || "Ошибка входа");
     }
@@ -697,14 +783,13 @@ function ensureAuthModal(){
     try{
       const data = await apiPost(API.register, {
         name: String(fd.get("name") || "").trim(),
+        phone: normalizePhone(String(fd.get("phone") || "")),
         email: String(fd.get("email") || "").trim(),
         password: String(fd.get("password") || ""),
         password_confirmation: String(fd.get("password_confirmation") || ""),
       });
       state.user = data.user;
-      renderProfile();
-      closeAuthModal();
-      toast(`Регистрация успешна. Добро пожаловать, ${state.user.name}!`);
+      await afterAuthSuccess(`Регистрация успешна. Добро пожаловать, ${state.user.name}!`);
     }catch(err){
       toast(err?.message || "Ошибка регистрации");
     }
@@ -734,13 +819,44 @@ function closeAuthModal(){
   modal.setAttribute("aria-hidden", "true");
 }
 
+async function afterAuthSuccess(message){
+  renderProfile();
+  prefillUserForms();
+  await fetchAccountData();
+  closeAuthModal();
+  toast(message);
+  const action = state.pendingAction;
+  state.pendingAction = null;
+  if (action === "checkout") openCheckout();
+  else if (action === "reservation") await submitReservationForm();
+}
+
 function renderProfile(){
   const profileName = document.querySelector(".profile__name");
+  const profileAvatar = document.querySelector(".profile__avatar");
   const profileLogin = document.getElementById("profileLogin");
   let profileLogout = document.getElementById("profileLogout");
+  let profileEmail = document.getElementById("profileEmail");
 
   if (profileName){
     profileName.textContent = state.user?.name || "Гость";
+  }
+
+  if (profileAvatar){
+    const initial = state.user?.name?.trim()?.[0]?.toUpperCase();
+    profileAvatar.textContent = initial || "👤";
+  }
+
+  if (!profileEmail && profileLogin?.parentElement){
+    profileEmail = document.createElement("div");
+    profileEmail.className = "profile__item profile__item--meta";
+    profileEmail.id = "profileEmail";
+    profileEmail.setAttribute("role", "presentation");
+    profileLogin.parentElement.insertBefore(profileEmail, profileLogin);
+  }
+  if (profileEmail){
+    profileEmail.textContent = state.user?.email || "";
+    profileEmail.hidden = !state.user?.email;
   }
 
   if (!profileLogout && profileLogin?.parentElement){
@@ -756,13 +872,76 @@ function renderProfile(){
         await apiPost(API.logout, {});
       }catch(_e){ /* ignore */ }
       state.user = null;
+      state.serverOrders = [];
+      state.serverReservations = [];
+      state.pendingAction = null;
       renderProfile();
+      renderOrders();
+      renderMyReservations();
+      if (els.clearOrdersBtn) els.clearOrdersBtn.hidden = false;
+      if (els.ordersHistoryHint){
+        els.ordersHistoryHint.textContent = "Без входа история хранится в браузере. Войдите, чтобы видеть заказы на всех устройствах.";
+      }
       toast("Вы вышли из аккаунта");
     });
   }
 
   if (profileLogin) profileLogin.hidden = !!state.user;
   if (profileLogout) profileLogout.hidden = !state.user;
+  if (els.clearOrdersBtn) els.clearOrdersBtn.hidden = !!state.user;
+  if (els.ordersHistoryHint && state.user){
+    els.ordersHistoryHint.textContent = "История заказов привязана к вашему аккаунту.";
+  }
+}
+
+async function fetchAccountData(){
+  if (!state.user){
+    state.serverOrders = [];
+    state.serverReservations = [];
+    renderOrders();
+    renderMyReservations();
+    return;
+  }
+  try{
+    const [ordersRes, resRes] = await Promise.all([
+      fetch(API.myOrders, { credentials: "same-origin", headers: { Accept: "application/json" } }),
+      fetch(API.myReservations, { credentials: "same-origin", headers: { Accept: "application/json" } }),
+    ]);
+    if (ordersRes.ok){
+      const data = await ordersRes.json();
+      state.serverOrders = data.orders || [];
+    }
+    if (resRes.ok){
+      const data = await resRes.json();
+      state.serverReservations = data.reservations || [];
+    }
+    renderOrders();
+    renderMyReservations();
+  }catch(_e){
+    /* offline */
+  }
+}
+
+async function submitReservationForm(){
+  if (!els.reserveForm) return;
+  if (!validateForm(els.reserveForm)){
+    toast("Проверьте поля бронирования");
+    return;
+  }
+
+  const payload = {
+    name: els.reserveForm.name.value.trim(),
+    phone: normalizePhone(els.reserveForm.phone.value),
+    guests: Number(els.reserveForm.guests.value),
+    date: els.reserveForm.date.value,
+    time: els.reserveForm.time.value,
+    note: els.reserveForm.note.value.trim() || null,
+  };
+
+  await submitReservationToApi(payload);
+  localStorage.setItem(STORAGE.reservation, JSON.stringify({ ...payload, createdAt: new Date().toISOString() }));
+  await fetchAccountData();
+  toast("Бронь создана ✅");
 }
 
 async function fetchCurrentUser(){
@@ -775,6 +954,8 @@ async function fetchCurrentUser(){
     const data = await res.json();
     state.user = data?.user || null;
     renderProfile();
+    prefillUserForms();
+    await fetchAccountData();
   }catch(_e){
     /* offline / static */
   }
@@ -802,6 +983,7 @@ async function init(){
   const profileMenu = document.getElementById("profileMenu");
   const profileLogin = document.getElementById("profileLogin");
   const profileOrders = document.getElementById("profileOrders");
+  const profileReservations = document.getElementById("profileReservations");
 
   function openProfileMenu(){
     if (!profileMenu || !profileBtn) return;
@@ -831,6 +1013,15 @@ async function init(){
   profileOrders?.addEventListener("click", () => {
     closeProfileMenu();
     location.href = "/order.html";
+  });
+
+  profileReservations?.addEventListener("click", () => {
+    closeProfileMenu();
+    if (location.pathname.includes("reserve")){
+      document.getElementById("myReservations")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      location.href = "/reserve.html#myReservations";
+    }
   });
 
   document.addEventListener("click", (e) => {
@@ -924,10 +1115,17 @@ async function init(){
   });
 
   // checkout
-  els.checkoutBtn?.addEventListener("click", openCheckout);
+  els.checkoutBtn?.addEventListener("click", handleCheckoutClick);
 
   els.checkoutForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!state.user){
+      state.pendingAction = "checkout";
+      closeCheckout();
+      openAuthModal(true);
+      toast("Войдите или зарегистрируйтесь, чтобы оформить заказ");
+      return;
+    }
     if (!validateForm(els.checkoutForm)){
       toast("Проверьте поля оформления");
       return;
@@ -967,24 +1165,41 @@ async function init(){
         itemsSummary: items.map(x => `${x.item.name} ×${x.qty}`).join(", ")
       };
 
-      state.orders.unshift(order);
-      state.orders = state.orders.slice(0, 20);
       state.cart = {};
       save();
 
+      if (state.user){
+        await fetchAccountData();
+      } else {
+        state.orders.unshift(order);
+        state.orders = state.orders.slice(0, 20);
+        save();
+        renderOrders();
+      }
+
       closeCheckout();
       closeDrawer();
-      render();
+      renderCart();
       toast(`Заказ #${order.number} оформлен ✅`);
       els.checkoutForm.reset();
+      prefillUserForms();
     }catch(err){
       console.error(err);
+      if (err?.message?.includes("войти") || err?.message?.includes("зарегистр")){
+        state.pendingAction = "checkout";
+        closeCheckout();
+        openAuthModal(true);
+      }
       toast(err?.message || "Ошибка оформления заказа");
     }
   });
 
   // orders clear
   els.clearOrdersBtn?.addEventListener("click", () => {
+    if (state.user){
+      toast("История заказов хранится в аккаунте");
+      return;
+    }
     state.orders = [];
     save();
     renderOrders();
@@ -1003,29 +1218,27 @@ async function init(){
 
     els.reserveForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!validateForm(els.reserveForm)){
-        toast("Проверьте поля бронирования");
+      if (!state.user){
+        state.pendingAction = "reservation";
+        openAuthModal(true);
+        toast("Войдите или зарегистрируйтесь, чтобы забронировать столик");
         return;
       }
-
-      const payload = {
-        name: els.reserveForm.name.value.trim(),
-        phone: normalizePhone(els.reserveForm.phone.value),
-        guests: Number(els.reserveForm.guests.value),
-        date: els.reserveForm.date.value,
-        time: els.reserveForm.time.value,
-        note: els.reserveForm.note.value.trim() || null,
-      };
-
       try{
-        await submitReservationToApi(payload);
-        localStorage.setItem(STORAGE.reservation, JSON.stringify({ ...payload, createdAt: new Date().toISOString() }));
-        toast("Бронь создана ✅");
+        await submitReservationForm();
       }catch(err){
         console.error(err);
+        if (err?.message?.includes("войти") || err?.message?.includes("зарегистр")){
+          state.pendingAction = "reservation";
+          openAuthModal(true);
+        }
         toast(err?.message || "Ошибка бронирования");
       }
     });
+  }
+
+  if (location.hash === "#myReservations"){
+    document.getElementById("myReservations")?.scrollIntoView({ behavior: "smooth" });
   }
 
   els.downloadIcsBtn?.addEventListener("click", () => {

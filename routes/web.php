@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\ReservationAdminController;
 use App\Http\Controllers\Admin\MenuAdminController;
 use App\Http\Controllers\Api\AuthController as CustomerAuthController;
+use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ReservationController;
 
 Route::view('/', 'index');
 Route::view('/index.html', 'index');
@@ -19,6 +22,13 @@ Route::post('/api/register', [CustomerAuthController::class, 'register']);
 Route::post('/api/login', [CustomerAuthController::class, 'login']);
 Route::get('/api/user', [CustomerAuthController::class, 'user']);
 Route::post('/api/logout', [CustomerAuthController::class, 'logout']);
+
+Route::middleware(['auth', 'customer'])->group(function () {
+    Route::post('/api/orders', [OrderController::class, 'store']);
+    Route::post('/api/reservations', [ReservationController::class, 'store']);
+    Route::get('/api/my/orders', [AccountController::class, 'orders']);
+    Route::get('/api/my/reservations', [AccountController::class, 'reservations']);
+});
 
 Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.submit');
