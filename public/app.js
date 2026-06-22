@@ -16,7 +16,11 @@ const STORAGE = {
 const API = {
   menu: "/api/menu",
   orders: "/api/orders",
-  reservations: "/api/reservations"
+  reservations: "/api/reservations",
+  register: "/api/register",
+  login: "/api/login",
+  logout: "/api/logout",
+  user: "/api/user",
 };
 
 const RUB = (n) => `${Math.round(n)} ₽`;
@@ -168,7 +172,8 @@ let state = {
   orders: loadJSON(STORAGE.orders, []),
   dishModalId: null,
   theme: localStorage.getItem(STORAGE.theme) || "dark",
-  fulfillment: "delivery"
+  fulfillment: "delivery",
+  user: null,
 };
 
 const REVIEWS = [
@@ -587,6 +592,194 @@ async function submitReservationToApi(payload){
   return data;
 }
 
+/* ---------- auth (регистрация / вход гостя) ---------- */
+function csrfToken(){
+  const raw = document.cookie.split("; ").find((c) => c.startsWith("XSRF-TOKEN="));
+  return raw ? decodeURIComponent(raw.split("=")[1]) : "";
+}
+
+async function apiPost(url, body){
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-XSRF-TOKEN": csrfToken(),
+    },
+    body: JSON.stringify(body),
+  });
+  const isJson = (res.headers.get("content-type") || "").includes("application/json");
+  const data = isJson ? await res.json() : null;
+  if (!res.ok){
+    const msg = data?.message
+      || Object.values(data?.errors || {}).flat()?.[0]
+      || `Ошибка запроса (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function ensureAuthModal(){
+  if (document.getElementById("authModal")) return;
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "authModal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-label", "Вход и регистрация");
+  modal.setAttribute("aria-hidden", "true");
+  modal.innerHTML = `
+    <div class="modal__overlay" data-close="auth" tabindex="-1"></div>
+    <div class="modal__panel" role="document">
+      <div class="modal__head">
+        <h3 id="authModalTitle">Вход</h3>
+        <button class="iconBtn" type="button" data-close="auth" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modal__body">
+        <form class="form" id="authLoginForm">
+          <label>Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"/></label>
+          <label>Пароль<input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Не менее 8 символов"/></label>
+          <button class="btn btn--primary btn--wide" type="submit">Войти</button>
+        </form>
+        <form class="form" id="authRegisterForm" hidden>
+          <label>Имя<input name="name" autocomplete="name" required minlength="2" placeholder="Ваше имя"/></label>
+          <label>Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"/></label>
+          <label>Пароль<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="Не менее 8 символов"/></label>
+          <label>Повтор пароля<input name="password_confirmation" type="password" autocomplete="new-password" required minlength="8"/></label>
+          <button class="btn btn--primary btn--wide" type="submit">Зарегистрироваться</button>
+        </form>
+        <p class="muted small" style="margin-top:12px;text-align:center">
+          <button class="btn btn--ghost" type="button" id="authToggleMode">Нет аккаунта? Зарегистрироваться</button>
+        </p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const loginForm = modal.querySelector("#authLoginForm");
+  const registerForm = modal.querySelector("#authRegisterForm");
+  const toggleBtn = modal.querySelector("#authToggleMode");
+  const title = modal.querySelector("#authModalTitle");
+  let registerMode = false;
+
+  function setAuthMode(register){
+    registerMode = register;
+    loginForm.hidden = register;
+    registerForm.hidden = !register;
+    title.textContent = register ? "Регистрация" : "Вход";
+    toggleBtn.textContent = register ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+  }
+
+  toggleBtn.addEventListener("click", () => setAuthMode(!registerMode));
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(loginForm);
+    try{
+      const data = await apiPost(API.login, {
+        email: String(fd.get("email") || "").trim(),
+        password: String(fd.get("password") || ""),
+      });
+      state.user = data.user;
+      renderProfile();
+      closeAuthModal();
+      toast(`Добро пожаловать, ${state.user.name}!`);
+    }catch(err){
+      toast(err?.message || "Ошибка входа");
+    }
+  });
+
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(registerForm);
+    try{
+      const data = await apiPost(API.register, {
+        name: String(fd.get("name") || "").trim(),
+        email: String(fd.get("email") || "").trim(),
+        password: String(fd.get("password") || ""),
+        password_confirmation: String(fd.get("password_confirmation") || ""),
+      });
+      state.user = data.user;
+      renderProfile();
+      closeAuthModal();
+      toast(`Регистрация успешна. Добро пожаловать, ${state.user.name}!`);
+    }catch(err){
+      toast(err?.message || "Ошибка регистрации");
+    }
+  });
+}
+
+function openAuthModal(register = false){
+  ensureAuthModal();
+  const modal = document.getElementById("authModal");
+  const toggleBtn = document.getElementById("authToggleMode");
+  if (toggleBtn){
+    const loginForm = document.getElementById("authLoginForm");
+    const registerForm = document.getElementById("authRegisterForm");
+    const title = document.getElementById("authModalTitle");
+    loginForm.hidden = register;
+    registerForm.hidden = !register;
+    title.textContent = register ? "Регистрация" : "Вход";
+    toggleBtn.textContent = register ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+  }
+  modal.setAttribute("aria-hidden", "false");
+  modal.querySelector("input:not([hidden])")?.focus?.();
+}
+
+function closeAuthModal(){
+  const modal = document.getElementById("authModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function renderProfile(){
+  const profileName = document.querySelector(".profile__name");
+  const profileLogin = document.getElementById("profileLogin");
+  let profileLogout = document.getElementById("profileLogout");
+
+  if (profileName){
+    profileName.textContent = state.user?.name || "Гость";
+  }
+
+  if (!profileLogout && profileLogin?.parentElement){
+    profileLogout = document.createElement("button");
+    profileLogout.className = "profile__item";
+    profileLogout.type = "button";
+    profileLogout.id = "profileLogout";
+    profileLogout.setAttribute("role", "menuitem");
+    profileLogout.textContent = "Выйти";
+    profileLogin.parentElement.insertBefore(profileLogout, profileLogin.nextSibling);
+    profileLogout.addEventListener("click", async () => {
+      try{
+        await apiPost(API.logout, {});
+      }catch(_e){ /* ignore */ }
+      state.user = null;
+      renderProfile();
+      toast("Вы вышли из аккаунта");
+    });
+  }
+
+  if (profileLogin) profileLogin.hidden = !!state.user;
+  if (profileLogout) profileLogout.hidden = !state.user;
+}
+
+async function fetchCurrentUser(){
+  try{
+    const res = await fetch(API.user, {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    state.user = data?.user || null;
+    renderProfile();
+  }catch(_e){
+    /* offline / static */
+  }
+}
+
 /* ---------- init ---------- */
 async function init(){
   if (els.year) els.year.textContent = String(new Date().getFullYear());
@@ -629,8 +822,11 @@ async function init(){
 
   profileLogin?.addEventListener("click", () => {
     closeProfileMenu();
-    toast("Вход и регистрация будут доступны после подключения админки");
+    openAuthModal(false);
   });
+
+  await fetchCurrentUser();
+  ensureAuthModal();
 
   profileOrders?.addEventListener("click", () => {
     closeProfileMenu();
@@ -684,6 +880,7 @@ async function init(){
     if (close === "drawer") closeDrawer();
     if (close === "modal") closeDishModal();
     if (close === "checkout") closeCheckout();
+    if (close === "auth") closeAuthModal();
     if (close === "nav") closeNav();
   });
 
@@ -691,6 +888,7 @@ async function init(){
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (els.checkoutModal?.getAttribute("aria-hidden") === "false") closeCheckout();
+    else if (document.getElementById("authModal")?.getAttribute("aria-hidden") === "false") closeAuthModal();
     else if (els.dishModal?.getAttribute("aria-hidden") === "false") closeDishModal();
     else if (els.cartDrawer?.getAttribute("aria-hidden") === "false") closeDrawer();
     else if (navDrawer?.getAttribute("aria-hidden") === "false") closeNav();

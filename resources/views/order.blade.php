@@ -64,8 +64,7 @@
      <a href="/contacts.html" data-close="nav">Контакты</a>
     </nav>
     <div class="divider"></div>
-    <div class="muted small">Тел: <a href="tel:+70000000000">+7 (000) 000-00-00</a></div>
-    <div class="muted small">Email: <a href="mailto:info@antalya.example">info@antalya.example</a></div>
+    @include('partials.contact-drawer')
    </div>
   </div>
  </div>

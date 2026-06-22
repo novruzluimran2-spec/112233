@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — ER-диаграмма MySQL</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — ER-диаграмма базы данных информационной системы «Antalya» (MySQL, Laravel Eloquent)</p>
+    <div class="legend">
+      <span><span class="pk" style="font-weight:600">PK</span> — первичный ключ</span>
+      <span><span class="fk" style="font-weight:600">FK</span> — внешний ключ</span>
+    </div>
+    <div class="er-wrap">
+      <div class="entity">
+        <div class="entity-title">menu_categories</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div>title VARCHAR</div>
+          <div>is_active BOOLEAN</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="entity">
+        <div class="entity-title">menu_items</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div><span class="fk">category_id</span> → menu_categories</div>
+          <div>title, description, weight</div>
+          <div>price DECIMAL(10,2)</div>
+          <div>ingredients, kcal, image</div>
+          <div>is_available BOOLEAN</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="entity">
+        <div class="entity-title">orders</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div>customer_name, phone</div>
+          <div>delivery_type ENUM</div>
+          <div>address, payment_method</div>
+          <div>note, total DECIMAL(12,2)</div>
+          <div>status ENUM (new…)</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="entity">
+        <div class="entity-title">order_items</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div><span class="fk">order_id</span> → orders</div>
+          <div><span class="fk">menu_item_id</span> → menu_items</div>
+          <div>qty INT, price DECIMAL(10,2)</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="entity">
+        <div class="entity-title">reservations</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div>name, phone</div>
+          <div>date DATE, time TIME</div>
+          <div>guests TINYINT</div>
+          <div>note TEXT</div>
+          <div>status ENUM (new…)</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="entity">
+        <div class="entity-title">users</div>
+        <div class="entity-body">
+          <div><span class="pk">id</span> BIGINT PK</div>
+          <div>name, email UNIQUE</div>
+          <div>password, remember_token</div>
+          <div>created_at, updated_at</div>
+        </div>
+      </div>
+      <div class="rel-list">
+        <strong>Связи (1 : N):</strong>
+        <ul>
+          <li><strong>menu_categories</strong> (1) — (N) <strong>menu_items</strong> — категория содержит блюда; CASCADE ON DELETE</li>
+          <li><strong>orders</strong> (1) — (N) <strong>order_items</strong> — заказ состоит из позиций; CASCADE ON DELETE</li>
+          <li><strong>menu_items</strong> (1) — (N) <strong>order_items</strong> — позиция ссылается на блюдо; RESTRICT ON DELETE</li>
+          <li><strong>reservations</strong> и <strong>users</strong> — автономные сущности (без FK между собой и заказами)</li>
+        </ul>
+        <p style="margin:12px 0 0;font-size:12px;color:#64748b">
+          Служебные таблицы Laravel: cache, jobs, sessions, password_reset_tokens, migrations.
+        </p>
+      </div>
+    </div>
+    <svg viewBox="0 0 900 320" style="width:100%;max-width:900px;margin:24px auto;display:block" aria-hidden="true">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+        </marker>
+      </defs>
+      <rect x="20" y="40" width="140" height="50" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="90" y="70" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">menu_categories</text>
+      <rect x="220" y="40" width="140" height="50" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="290" y="70" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">menu_items</text>
+      <line x1="160" y1="65" x2="220" y2="65" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="190" y="55" text-anchor="middle" font-size="10" fill="#64748b">1:N</text>
+      <rect x="420" y="40" width="120" height="50" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="480" y="70" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">orders</text>
+      <rect x="580" y="40" width="130" height="50" rx="6" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <text x="645" y="70" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">order_items</text>
+      <line x1="540" y1="65" x2="580" y2="65" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="560" y="55" text-anchor="middle" font-size="10" fill="#64748b">1:N</text>
+      <line x1="360" y1="65" x2="400" y2="120" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="645" y1="90" x2="645" y2="120" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="380" y="100" font-size="10" fill="#64748b">N:1</text>
+      <rect x="220" y="200" width="140" height="50" rx="6" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+      <text x="290" y="230" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">reservations</text>
+      <rect x="620" y="200" width="100" height="50" rx="6" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+      <text x="670" y="230" text-anchor="middle" font-size="12" font-family="Segoe UI,sans-serif">users</text>
+      <text x="450" y="300" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI,sans-serif">Схема связей предметной области</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\ReservationAdminController;
 use App\Http\Controllers\Admin\MenuAdminController;
+use App\Http\Controllers\Api\AuthController as CustomerAuthController;
 
 Route::view('/', 'index');
 Route::view('/index.html', 'index');
@@ -14,11 +15,16 @@ Route::view('/reserve.html', 'reserve');
 Route::view('/about.html', 'about');
 Route::view('/contacts.html', 'contacts');
 
+Route::post('/api/register', [CustomerAuthController::class, 'register']);
+Route::post('/api/login', [CustomerAuthController::class, 'login']);
+Route::get('/api/user', [CustomerAuthController::class, 'user']);
+Route::post('/api/logout', [CustomerAuthController::class, 'logout']);
+
 Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::redirect('/', '/admin/orders');
 
     Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');

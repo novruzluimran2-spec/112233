@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — Автоматизированный процесс TO-BE</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — Блок-схема целевого автоматизированного бизнес-процесса после внедрения сайта Antalya</p>
+    <div class="legend">
+      <span><i style="background:#dcfce7;border-color:#16a34a"></i> автоматически (секунды)</span>
+      <span><i style="background:#dbeafe;border-color:#2563eb"></i> база данных MySQL</span>
+    </div>
+    <div class="flow">
+      <div class="box start">Клиент заходит на сайт Antalya</div>
+      <div class="arrow"></div>
+      <div class="box auto">GET /api/menu — загрузка меню из MySQL<br/>⏱ 1–3 сек</div>
+      <div class="arrow"></div>
+      <div class="row">
+        <div class="branch">
+          <div class="box auto">Поиск / фильтр категорий</div>
+          <div class="arrow"></div>
+          <div class="box auto">Корзина (localStorage)</div>
+          <div class="arrow"></div>
+          <div class="box auto">POST /api/orders → MySQL<br/>⏱ 1–3 сек</div>
+          <div class="arrow"></div>
+          <div class="box auto">Номер заказа клиенту</div>
+        </div>
+        <div class="branch">
+          <div class="box auto">Форма бронирования /reserve.html</div>
+          <div class="arrow"></div>
+          <div class="box auto">POST /api/reservations → MySQL<br/>⏱ 1–2 сек</div>
+          <div class="arrow"></div>
+          <div class="box auto">Подтверждение + .ics</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="box db">База данных MySQL<br/>(orders, order_items, reservations, menu_*)</div>
+      <div class="arrow"></div>
+      <div class="box auto">Админ-панель /admin (Laravel Auth)</div>
+      <div class="arrow"></div>
+      <div class="row">
+        <div class="branch">
+          <div class="box auto">Смена статуса заказа<br/>PATCH /admin/orders/…</div>
+        </div>
+        <div class="branch">
+          <div class="box auto">Обработка броней<br/>PATCH /admin/reservations/…</div>
+        </div>
+        <div class="branch">
+          <div class="box auto">Вкл/выкл блюда в меню</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="box">Кухня / доставка ⏱ 20–40 мин</div>
+      <div class="arrow"></div>
+      <div class="box end">Заказ выполнен · история в БД</div>
+    </div>
+    <table class="data">
+      <tr><th>Этап</th><th>Ручной процесс</th><th>После сайта</th></tr>
+      <tr><td>Приём заказа</td><td>5–60 мин</td><td>1–3 мин</td></tr>
+      <tr><td>Фиксация в системе</td><td>блокнот</td><td>1–3 сек (API)</td></tr>
+      <tr><td>До передачи на кухню</td><td>15–90 мин</td><td>2–5 мин</td></tr>
+    </table>
+  </div>
+</body>
+</html>

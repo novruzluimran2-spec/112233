@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — PHP-контроллер заказа</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — Фрагмент серверного программного кода контроллера на языке PHP, отвечающего за маршрутизацию и обработку входящего заказа</p>
+
+    <div class="code-figure">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <div class="code-dots"><i></i><i></i><i></i></div>
+          <span class="code-path">routes/api.php</span>
+        </div>
+        <div class="code-body">
+          <div class="code-lines"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+          <pre class="code-src"><span class="op">&lt;?php</span>
+
+<span class="kw">use</span> App\Http\Controllers\Api\MenuController;
+<span class="kw">use</span> App\Http\Controllers\Api\OrderController;
+<span class="kw">use</span> App\Http\Controllers\Api\ReservationController;
+<span class="kw">use</span> Illuminate\Support\Facades\Route;
+
+Route::<span class="fn">get</span>(<span class="str">'/menu'</span>, [MenuController::<span class="kw">class</span>, <span class="str">'index'</span>]);
+Route::<span class="fn">post</span>(<span class="str">'/orders'</span>, [OrderController::<span class="kw">class</span>, <span class="str">'store'</span>]);
+Route::<span class="fn">post</span>(<span class="str">'/reservations'</span>, [ReservationController::<span class="kw">class</span>, <span class="str">'store'</span>]);</pre>
+        </div>
+      </div>
+      <p class="code-caption">Маршрут POST /api/orders связывает HTTP-запрос с методом store контроллера OrderController</p>
+    </div>
+
+    <div class="code-figure" style="margin-top:28px">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <div class="code-dots"><i></i><i></i><i></i></div>
+          <span class="code-path">app/Http/Controllers/Api/OrderController.php</span>
+        </div>
+        <div class="code-body">
+          <div class="code-lines"><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span>32</span><span>33</span><span>34</span><span>35</span><span>36</span><span>37</span><span>38</span><span>39</span><span>40</span><span>41</span><span>42</span><span>43</span><span>44</span><span>45</span><span>46</span><span>47</span><span>48</span><span>49</span><span>50</span><span>51</span><span>52</span><span>53</span><span>54</span><span>55</span><span>56</span><span>57</span><span>58</span><span>59</span><span>60</span><span>61</span><span>62</span><span>63</span><span>64</span><span>65</span><span>66</span><span>67</span><span>68</span><span>69</span><span>70</span><span>71</span><span>72</span><span>73</span><span>74</span><span>75</span><span>76</span><span>77</span><span>78</span><span>79</span><span>80</span><span>81</span><span>82</span><span>83</span><span>84</span><span>85</span><span>86</span><span>87</span><span>88</span><span>89</span><span>90</span><span>91</span><span>92</span><span>93</span><span>94</span><span>95</span><span>96</span></div>
+          <pre class="code-src"><span class="kw">class</span> <span class="cls">OrderController</span> <span class="kw">extends</span> Controller
+{
+    <span class="kw">public function</span> <span class="fn">store</span>(Request <span class="var">$request</span>): JsonResponse
+    {
+        <span class="var">$data</span> = <span class="var">$request</span>-&gt;<span class="fn">validate</span>([
+            <span class="str">'customer_name'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'string'</span>, <span class="str">'max:255'</span>],
+            <span class="str">'phone'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'string'</span>, <span class="str">'max:32'</span>],
+            <span class="str">'delivery_type'</span> =&gt; [<span class="str">'required'</span>, Rule::<span class="fn">in</span>([<span class="str">'delivery'</span>, <span class="str">'pickup'</span>])],
+            <span class="str">'address'</span> =&gt; [<span class="str">'nullable'</span>, <span class="str">'string'</span>],
+            <span class="str">'payment_method'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'string'</span>, <span class="str">'max:32'</span>],
+            <span class="str">'note'</span> =&gt; [<span class="str">'nullable'</span>, <span class="str">'string'</span>],
+            <span class="str">'items'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'array'</span>, <span class="str">'min:1'</span>],
+            <span class="str">'items.*.menu_item_id'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'integer'</span>, <span class="str">'exists:menu_items,id'</span>],
+            <span class="str">'items.*.qty'</span> =&gt; [<span class="str">'required'</span>, <span class="str">'integer'</span>, <span class="str">'min:1'</span>, <span class="str">'max:100'</span>],
+        ]);
+
+        <span class="kw">if</span> ((<span class="var">$data</span>[<span class="str">'delivery_type'</span>] ?? <span class="kw">null</span>) === <span class="str">'delivery'</span>
+            &amp;&amp; <span class="fn">empty</span>(<span class="fn">trim</span>((<span class="kw">string</span>) (<span class="var">$data</span>[<span class="str">'address'</span>] ?? <span class="str">''</span>)))) {
+            <span class="kw">return</span> <span class="fn">response</span>()-&gt;<span class="fn">json</span>([
+                <span class="str">'message'</span> =&gt; <span class="str">'Address is required for delivery.'</span>,
+                <span class="str">'errors'</span> =&gt; [<span class="str">'address'</span> =&gt; [<span class="str">'Address is required for delivery.'</span>]],
+            ], <span class="num">422</span>);
+        }
+
+        <span class="var">$items</span> = <span class="fn">collect</span>(<span class="var">$data</span>[<span class="str">'items'</span>])
+            -&gt;<span class="fn">map</span>(<span class="kw">fn</span> (<span class="var">$i</span>) =&gt; [
+                <span class="str">'menu_item_id'</span> =&gt; (<span class="kw">int</span>) <span class="var">$i</span>[<span class="str">'menu_item_id'</span>],
+                <span class="str">'qty'</span> =&gt; (<span class="kw">int</span>) <span class="var">$i</span>[<span class="str">'qty'</span>],
+            ])
+            -&gt;<span class="fn">groupBy</span>(<span class="str">'menu_item_id'</span>)
+            -&gt;<span class="fn">map</span>(<span class="kw">fn</span> (<span class="var">$rows</span>) =&gt; <span class="var">$rows</span>-&gt;<span class="fn">sum</span>(<span class="str">'qty'</span>))
+            -&gt;<span class="fn">map</span>(<span class="kw">fn</span> (<span class="var">$qty</span>, <span class="var">$menuItemId</span>) =&gt; [<span class="str">'menu_item_id'</span> =&gt; (<span class="kw">int</span>) <span class="var">$menuItemId</span>, <span class="str">'qty'</span> =&gt; (<span class="kw">int</span>) <span class="var">$qty</span>])
+            -&gt;<span class="fn">values</span>();
+
+        <span class="var">$menuItems</span> = MenuItem::<span class="fn">query</span>()
+            -&gt;<span class="fn">whereIn</span>(<span class="str">'id'</span>, <span class="var">$items</span>-&gt;<span class="fn">pluck</span>(<span class="str">'menu_item_id'</span>))
+            -&gt;<span class="fn">where</span>(<span class="str">'is_available'</span>, <span class="kw">true</span>)
+            -&gt;<span class="fn">get</span>([<span class="str">'id'</span>, <span class="str">'price'</span>, <span class="str">'title'</span>]);
+
+        <span class="kw">if</span> (<span class="var">$menuItems</span>-&gt;<span class="fn">count</span>() !== <span class="var">$items</span>-&gt;<span class="fn">count</span>()) {
+            <span class="kw">return</span> <span class="fn">response</span>()-&gt;<span class="fn">json</span>([<span class="str">'message'</span> =&gt; <span class="str">'Some items are not available.'</span>], <span class="num">422</span>);
+        }
+
+        <span class="var">$byId</span> = <span class="var">$menuItems</span>-&gt;<span class="fn">keyBy</span>(<span class="str">'id'</span>)-&gt;<span class="fn">all</span>();
+
+        <span class="var">$total</span> = <span class="num">0.0</span>;
+        <span class="kw">foreach</span> (<span class="var">$items</span> <span class="kw">as</span> <span class="var">$row</span>) {
+            <span class="var">$mi</span> = <span class="var">$byId</span>[<span class="var">$row</span>[<span class="str">'menu_item_id'</span>]];
+            <span class="var">$total</span> += ((<span class="kw">float</span>) <span class="var">$mi</span>-&gt;price) * <span class="var">$row</span>[<span class="str">'qty'</span>];
+        }
+
+        <span class="var">$order</span> = DB::<span class="fn">transaction</span>(<span class="kw">function</span> () <span class="kw">use</span> (<span class="var">$data</span>, <span class="var">$items</span>, <span class="var">$byId</span>, <span class="var">$total</span>) {
+            <span class="var">$order</span> = Order::<span class="fn">query</span>()-&gt;<span class="fn">create</span>([
+                <span class="str">'customer_name'</span> =&gt; <span class="var">$data</span>[<span class="str">'customer_name'</span>],
+                <span class="str">'phone'</span> =&gt; <span class="var">$data</span>[<span class="str">'phone'</span>],
+                <span class="str">'delivery_type'</span> =&gt; <span class="var">$data</span>[<span class="str">'delivery_type'</span>],
+                <span class="str">'address'</span> =&gt; <span class="var">$data</span>[<span class="str">'delivery_type'</span>] === <span class="str">'delivery'</span> ? <span class="var">$data</span>[<span class="str">'address'</span>] : <span class="kw">null</span>,
+                <span class="str">'payment_method'</span> =&gt; <span class="var">$data</span>[<span class="str">'payment_method'</span>],
+                <span class="str">'note'</span> =&gt; <span class="var">$data</span>[<span class="str">'note'</span>] ?? <span class="kw">null</span>,
+                <span class="str">'total'</span> =&gt; <span class="var">$total</span>,
+                <span class="str">'status'</span> =&gt; <span class="str">'new'</span>,
+            ]);
+
+            <span class="kw">foreach</span> (<span class="var">$items</span> <span class="kw">as</span> <span class="var">$row</span>) {
+                <span class="var">$mi</span> = <span class="var">$byId</span>[<span class="var">$row</span>[<span class="str">'menu_item_id'</span>]];
+                OrderItem::<span class="fn">query</span>()-&gt;<span class="fn">create</span>([
+                    <span class="str">'order_id'</span> =&gt; <span class="var">$order</span>-&gt;id,
+                    <span class="str">'menu_item_id'</span> =&gt; <span class="var">$mi</span>-&gt;id,
+                    <span class="str">'qty'</span> =&gt; <span class="var">$row</span>[<span class="str">'qty'</span>],
+                    <span class="str">'price'</span> =&gt; <span class="var">$mi</span>-&gt;price,
+                ]);
+            }
+
+            <span class="kw">return</span> <span class="var">$order</span>;
+        });
+
+        <span class="kw">return</span> <span class="fn">response</span>()-&gt;<span class="fn">json</span>([
+            <span class="str">'id'</span> =&gt; <span class="var">$order</span>-&gt;id,
+            <span class="str">'status'</span> =&gt; <span class="var">$order</span>-&gt;status,
+            <span class="str">'total'</span> =&gt; <span class="var">$order</span>-&gt;total,
+        ], <span class="num">201</span>);
+    }
+}</pre>
+        </div>
+      </div>
+      <p class="code-caption">Метод store: валидация JSON, проверка доступности блюд, расчёт суммы, транзакционная запись в orders и order_items</p>
+    </div>
+
+    <p class="note" style="margin-top:24px">
+      Исходные файлы проекта: <code>routes/api.php</code>, <code>app/Http/Controllers/Api/OrderController.php</code>.
+      Клиент отправляет заказ через <code>POST /api/orders</code> из <code>public/app.js</code>.
+    </p>
+  </div>
+</body>
+</html>

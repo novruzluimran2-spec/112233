@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — Админ-панель заказов</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page" style="max-width:1200px">
+    <p class="caption">Рисунок X — Защищённый интерфейс панели управления для администратора ресторана с отображением списка активных заказов</p>
+
+    <div class="admin-shell">
+      <div class="admin-urlbar">
+        <span class="lock">🔒 HTTPS</span>
+        <span class="url">https://antalya-laravel.up.railway.app/admin/orders</span>
+        <span>👤 admin@antalya.local</span>
+      </div>
+
+      <header class="admin-header">
+        <strong>Antalya Admin</strong>
+        <nav>
+          <a href="#" class="on">Заказы</a>
+          <a href="#">Бронирования</a>
+          <a href="#">Меню</a>
+        </nav>
+        <button type="button" class="logout">Выйти</button>
+      </header>
+
+      <main class="admin-main">
+        <span class="admin-badge">🔐 Laravel Auth · сессия активна</span>
+        <h2>Заказы</h2>
+        <p class="muted" style="margin:0 0 12px;font-size:12px">Список входящих и активных заказов из базы данных MySQL</p>
+
+        <div class="admin-ok">Статус заказа #12 обновлён.</div>
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Клиент</th>
+              <th>Контакты</th>
+              <th>Тип / Оплата</th>
+              <th>Сумма</th>
+              <th>Позиции</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#12<div class="muted">03.06.2026 14:28</div></td>
+              <td>Алиев Руслан</td>
+              <td>+7 (999) 123-45-67<div class="muted">ул. Ленина, 15, кв. 42</div></td>
+              <td>delivery / card</td>
+              <td>2489.00 ₽</td>
+              <td>
+                <div>Adana kebab x2</div>
+                <div>Ayran x2</div>
+                <div>Baklava x1</div>
+              </td>
+              <td><span class="status-new">new</span></td>
+              <td>
+                <div class="row">
+                  <select>
+                    <option selected>new</option>
+                    <option>accepted</option>
+                    <option>completed</option>
+                    <option>cancelled</option>
+                  </select>
+                  <button type="button">Сохранить</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>#11<div class="muted">03.06.2026 14:05</div></td>
+              <td>Мария Козлова</td>
+              <td>+7 (916) 555-12-34<div class="muted">—</div></td>
+              <td>pickup / cash</td>
+              <td>1310.00 ₽</td>
+              <td>
+                <div>Lahmacun x2</div>
+                <div>Çoban salata x1</div>
+              </td>
+              <td><span class="status-accepted">accepted</span></td>
+              <td>
+                <div class="row">
+                  <select>
+                    <option>new</option>
+                    <option selected>accepted</option>
+                    <option>completed</option>
+                    <option>cancelled</option>
+                  </select>
+                  <button type="button">Сохранить</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>#10<div class="muted">03.06.2026 13:41</div></td>
+              <td>Илья Петров</td>
+              <td>+7 (903) 777-88-99<div class="muted">пр. Мира, 8</div></td>
+              <td>delivery / card</td>
+              <td>1890.00 ₽</td>
+              <td>
+                <div>Pide peynirli x1</div>
+                <div>Mercimek çorbası x2</div>
+              </td>
+              <td><span class="status-new">new</span></td>
+              <td>
+                <div class="row">
+                  <select>
+                    <option selected>new</option>
+                    <option>accepted</option>
+                    <option>completed</option>
+                    <option>cancelled</option>
+                  </select>
+                  <button type="button">Сохранить</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>#9<div class="muted">03.06.2026 12:55</div></td>
+              <td>Анна Смирнова</td>
+              <td>+7 (925) 444-33-22<div class="muted">—</div></td>
+              <td>pickup / card</td>
+              <td>520.00 ₽</td>
+              <td>
+                <div>Künefe x1</div>
+              </td>
+              <td><span class="status-accepted">accepted</span></td>
+              <td>
+                <div class="row">
+                  <select>
+                    <option>new</option>
+                    <option selected>accepted</option>
+                    <option>completed</option>
+                    <option>cancelled</option>
+                  </select>
+                  <button type="button">Сохранить</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>#8<div class="muted">03.06.2026 12:10</div></td>
+              <td>Дмитрий Орлов</td>
+              <td>+7 (977) 222-11-00<div class="muted">ул. Садовая, 3</div></td>
+              <td>delivery / cash</td>
+              <td>3179.00 ₽</td>
+              <td>
+                <div>Adana kebab x3</div>
+                <div>Pide peynirli x1</div>
+              </td>
+              <td><span class="status-completed">completed</span></td>
+              <td>
+                <div class="row">
+                  <select>
+                    <option>new</option>
+                    <option>accepted</option>
+                    <option selected>completed</option>
+                    <option>cancelled</option>
+                  </select>
+                  <button type="button">Сохранить</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="admin-pager">
+          <span class="on">1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>…</span>
+          <span>Далее →</span>
+        </div>
+      </main>
+    </div>
+
+    <p class="note" style="margin-top:20px">
+      Реальный интерфейс: <code>/admin/orders</code> (Blade-шаблон <code>admin/orders.blade.php</code>).
+      Доступ защищён middleware Laravel Auth; смена статуса — <code>PATCH /admin/orders/{id}/status</code>.
+      Данные загружаются из таблиц <code>orders</code> и <code>order_items</code> через Eloquent.
+    </p>
+  </div>
+</body>
+</html>

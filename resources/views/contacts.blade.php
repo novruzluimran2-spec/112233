@@ -64,8 +64,7 @@
      <a href="/contacts.html" data-close="nav">Контакты</a>
     </nav>
     <div class="divider"></div>
-    <div class="muted small">Тел: <a href="tel:+70000000000">+7 (000) 000-00-00</a></div>
-    <div class="muted small">Email: <a href="mailto:info@antalya.example">info@antalya.example</a></div>
+    @include('partials.contact-drawer')
    </div>
   </div>
  </div>
@@ -73,26 +72,7 @@
  <main id="main">
   <section class="section" id="contacts">
    <div class="container">
-    <div class="section__head">
-     <h2>Контакты</h2>
-     <p class="muted">Замените адрес/телефон под ваш город и реальную локацию.</p>
-    </div>
-    <div class="contactsGrid">
-     <div class="card">
-      <h3>Мы на связи</h3>
-      <div class="contactRow"><span class="contactRow__k">Телефон</span><a class="contactRow__v" href="tel:+70000000000">+7 (000) 000-00-00</a></div>
-      <div class="contactRow"><span class="contactRow__k">Email</span><a class="contactRow__v" href="mailto:info@antalya.example">info@antalya.example</a></div>
-      <div class="contactRow"><span class="contactRow__k">Адрес</span><span class="contactRow__v">г. ________, ул. ________, 10</span></div>
-      <h3>Соцсети</h3>
-      <div class="socials"><a href="#top" class="social">VK</a></div>
-     </div>
-     <div class="card mapCard" aria-label="Карта (заглушка)">
-      <div class="mapPlaceholder" aria-hidden="true">
-       <div class="mapPin"></div>
-       <div class="mapText">Карта</div>
-      </div>
-     </div>
-    </div>
+    @include('partials.contacts-section')
    </div>
   </section>
  </main>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — Макеты интерфейса</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — Визуальные макеты (wireframe) главной страницы и каталога блюд сайта Antalya</p>
+
+    <div class="wire">
+      <div class="wire-label">Главная страница (index.html)</div>
+      <div class="wire-body">
+        <div class="w-header">
+          <span class="w-logo">☰ Antalya</span>
+          <span class="w-nav">
+            <span>Меню</span><span>Заказ</span><span>Бронирование</span><span>О нас</span><span>Контакты</span>
+          </span>
+          <span>🌓 🧺 Корзина (0) 👤 Гость · Забронировать</span>
+        </div>
+        <div class="w-hero">
+          <div class="w-block dark">
+            <h3>Турецкая кухня с доставкой</h3>
+            <p>Kebab, pide, lahmacun, baklava — закажите онлайн или забронируйте столик.</p>
+            <span class="w-btn">Смотреть меню</span>
+            <span class="w-btn ghost">Забронировать стол</span>
+          </div>
+          <div class="w-block accent">
+            <h3>Акция дня</h3>
+            <p>Комбо «Antalya» — скидка 15% на самовывоз до 21:00</p>
+            <div style="height:60px;background:linear-gradient(135deg,#d6d3d1,#78716c);border-radius:8px;margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="w-grid" style="grid-template-columns:repeat(3,1fr);margin-top:16px">
+          <div class="w-block"><h3>Доставка</h3><p>30–45 мин по городу</p></div>
+          <div class="w-block"><h3>Самовывоз</h3><p>Без очереди, готово к времени</p></div>
+          <div class="w-block"><h3>Бронь столика</h3><p>Онлайн-форма + календарь .ics</p></div>
+        </div>
+        <div class="w-block" style="margin-top:16px">
+          <h3>Популярные блюда</h3>
+          <div class="w-grid">
+            <div class="w-card"><div class="w-card-img"></div><div class="w-card-body">Adana kebab<div class="w-card-price">890 ₽</div></div></div>
+            <div class="w-card"><div class="w-card-img"></div><div class="w-card-body">Lahmacun<div class="w-card-price">420 ₽</div></div></div>
+            <div class="w-card"><div class="w-card-img"></div><div class="w-card-body">Pide peynirli<div class="w-card-price">550 ₽</div></div></div>
+            <div class="w-card"><div class="w-card-img"></div><div class="w-card-body">Baklava<div class="w-card-price">380 ₽</div></div></div>
+          </div>
+        </div>
+        <div class="w-block dark" style="margin-top:16px;text-align:center">
+          <h3>Контакты · +7 (000) 000-00-00 · info@antalya.example</h3>
+          <p>© Antalya — ресторан турецкой кухни</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="wire">
+      <div class="wire-label">Каталог блюд (menu.html)</div>
+      <div class="wire-body">
+        <div class="w-header">
+          <span class="w-logo">☰ Antalya</span>
+          <span class="w-nav"><span>Меню</span><span>Заказ</span><span>Бронирование</span></span>
+          <span>🧺 Корзина · Забронировать</span>
+        </div>
+        <div class="w-block" style="margin-top:16px">
+          <h3>Меню</h3>
+          <p>Фильтруйте блюда по категориям и добавляйте в корзину.</p>
+          <div class="toolbar-row">
+            <div class="w-search">🔍 Поиск по названию…</div>
+          </div>
+          <div class="w-chips">
+            <span class="w-chip on">Все</span>
+            <span class="w-chip">Закуски</span>
+            <span class="w-chip">Супы</span>
+            <span class="w-chip">Гриль</span>
+            <span class="w-chip">Пide</span>
+            <span class="w-chip">Десерты</span>
+            <span class="w-chip">Напитки</span>
+          </div>
+          <div class="w-grid">
+            <div class="w-card">
+              <div class="w-card-img"></div>
+              <div class="w-card-body">
+                <strong>Çoban salata</strong>
+                <p style="font-size:10px;color:#78716c;margin:4px 0">Овощной салат, 250 г</p>
+                <div class="w-card-price">390 ₽</div>
+                <span class="w-btn" style="margin-top:6px;font-size:10px">+ В корзину</span>
+              </div>
+            </div>
+            <div class="w-card">
+              <div class="w-card-img"></div>
+              <div class="w-card-body">
+                <strong>Mercimek çorbası</strong>
+                <p style="font-size:10px;color:#78716c;margin:4px 0">Чечевичный суп, 300 мл</p>
+                <div class="w-card-price">320 ₽</div>
+                <span class="w-btn" style="margin-top:6px;font-size:10px">+ В корзину</span>
+              </div>
+            </div>
+            <div class="w-card">
+              <div class="w-card-img"></div>
+              <div class="w-card-body">
+                <strong>Adana kebab</strong>
+                <p style="font-size:10px;color:#78716c;margin:4px 0">Острый кебаб, 350 г</p>
+                <div class="w-card-price">890 ₽</div>
+                <span class="w-btn" style="margin-top:6px;font-size:10px">+ В корзину</span>
+              </div>
+            </div>
+            <div class="w-card">
+              <div class="w-card-img"></div>
+              <div class="w-card-body">
+                <strong>Künefe</strong>
+                <p style="font-size:10px;color:#78716c;margin:4px 0">Сырный десерт, 200 г</p>
+                <div class="w-card-price">520 ₽</div>
+                <span class="w-btn" style="margin-top:6px;font-size:10px">+ В корзину</span>
+              </div>
+            </div>
+          </div>
+          <p class="note" style="margin-top:16px;margin-bottom:0">
+            Данные загружаются через REST API <code>GET /api/menu</code> (Eloquent → MySQL).
+            Корзина хранится в <code>localStorage</code> браузера (<code>public/app.js</code>).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

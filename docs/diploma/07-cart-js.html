@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — JavaScript корзина и localStorage</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — Исходный код нативного скрипта на языке JavaScript для работы корзины и сохранения данных в локальном хранилище</p>
+
+    <div class="code-figure">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <div class="code-dots"><i></i><i></i><i></i></div>
+          <span class="code-path">public/app.js — ключи localStorage и загрузка состояния</span>
+        </div>
+        <div class="code-body">
+          <div class="code-lines"><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span>32</span><span>33</span><span>34</span><span>35</span><span>36</span><span>37</span><span>38</span><span>39</span><span>40</span><span>41</span><span>42</span><span>43</span><span>44</span><span>45</span><span>46</span><span>47</span><span>48</span><span>49</span><span>50</span><span>51</span><span>52</span><span>53</span><span>54</span><span>55</span><span>56</span><span>57</span><span>58</span><span>59</span><span>60</span><span>61</span><span>62</span><span>63</span><span>64</span><span>65</span><span>66</span><span>67</span><span>68</span><span>69</span><span>70</span><span>71</span><span>72</span></div>
+          <pre class="code-src"><span class="cm">/* Antalya — фронтенд (Laravel API)
+   - Корзина + localStorage (гость) */</span>
+
+<span class="kw">const</span> <span class="var">STORAGE</span> = {
+  theme: <span class="str">"antalya_theme"</span>,
+  cart: <span class="str">"antalya_cart_v1"</span>,
+  orders: <span class="str">"antalya_orders_v1"</span>,
+  reservation: <span class="str">"antalya_reservation_v1"</span>
+};
+
+<span class="kw">let</span> <span class="var">state</span> = {
+  activeCategory: <span class="str">"Все"</span>,
+  search: <span class="str">""</span>,
+  cart: <span class="fn">loadJSON</span>(STORAGE.cart, {}),   <span class="cm">// { id: qty }</span>
+  orders: <span class="fn">loadJSON</span>(STORAGE.orders, []),
+  dishModalId: <span class="kw">null</span>,
+  theme: localStorage.<span class="fn">getItem</span>(STORAGE.theme) || <span class="str">"dark"</span>,
+  fulfillment: <span class="str">"delivery"</span>
+};
+
+<span class="cm">/* ---------- utils: localStorage ---------- */</span>
+<span class="kw">function</span> <span class="fn">loadJSON</span>(key, fallback){
+  <span class="kw">try</span>{
+    <span class="kw">const</span> raw = localStorage.<span class="fn">getItem</span>(key);
+    <span class="kw">return</span> raw ? JSON.<span class="fn">parse</span>(raw) : fallback;
+  }<span class="kw">catch</span>{ <span class="kw">return</span> fallback; }
+}
+
+<span class="kw">function</span> <span class="fn">save</span>(){
+  localStorage.<span class="fn">setItem</span>(STORAGE.cart, JSON.<span class="fn">stringify</span>(state.cart));
+  localStorage.<span class="fn">setItem</span>(STORAGE.orders, JSON.<span class="fn">stringify</span>(state.orders));
+}
+
+<span class="kw">function</span> <span class="fn">cartCount</span>(){
+  <span class="kw">return</span> Object.<span class="fn">values</span>(state.cart).<span class="fn">reduce</span>((a, b) =&gt; a + b, <span class="num">0</span>);
+}
+
+<span class="kw">function</span> <span class="fn">cartItems</span>(){
+  <span class="kw">return</span> Object.<span class="fn">entries</span>(state.cart)
+    .<span class="fn">map</span>(([id, qty]) =&gt; ({
+      item: MENU.<span class="fn">find</span>(x =&gt; String(x.id) === String(id)),
+      qty
+    }))
+    .<span class="fn">filter</span>(x =&gt; x.item &amp;&amp; x.qty &gt; <span class="num">0</span>);
+}
+
+<span class="kw">function</span> <span class="fn">computeTotals</span>(){
+  <span class="kw">const</span> items = <span class="fn">cartItems</span>();
+  <span class="kw">const</span> sum = items.<span class="fn">reduce</span>((acc, x) =&gt; acc + x.item.price * x.qty, <span class="num">0</span>);
+
+  <span class="kw">let</span> adjust = <span class="num">0</span>;
+  <span class="kw">if</span> (items.length &gt; <span class="num">0</span>){
+    <span class="kw">if</span> (state.fulfillment === <span class="str">"delivery"</span>){
+      adjust = <span class="num">199</span>;
+    } <span class="kw">else</span> {
+      adjust = -Math.<span class="fn">round</span>(sum * <span class="num">0.10</span>);
+    }
+  }
+  <span class="kw">const</span> grand = Math.<span class="fn">max</span>(<span class="num">0</span>, sum + adjust);
+  <span class="kw">return</span> { sum, adjust, grand };
+}</pre>
+        </div>
+      </div>
+      <p class="code-caption">При загрузке страницы корзина восстанавливается из localStorage; функция save() сериализует состояние в JSON</p>
+    </div>
+
+    <div class="code-figure" style="margin-top:28px">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <div class="code-dots"><i></i><i></i><i></i></div>
+          <span class="code-path">public/app.js — добавление в корзину и отрисовка</span>
+        </div>
+        <div class="code-body">
+          <div class="code-lines"><span>321</span><span>322</span><span>323</span><span>324</span><span>325</span><span>326</span><span>327</span><span>328</span><span>329</span><span>330</span><span>331</span><span>332</span><span>333</span><span>334</span><span>335</span><span>336</span><span>337</span><span>338</span><span>339</span><span>340</span><span>341</span><span>342</span><span>343</span><span>344</span><span>345</span><span>346</span><span>347</span><span>348</span><span>349</span><span>350</span><span>351</span><span>352</span><span>353</span><span>354</span><span>355</span><span>356</span><span>357</span><span>358</span><span>359</span><span>360</span><span>361</span><span>362</span><span>363</span><span>364</span><span>365</span><span>366</span><span>367</span><span>368</span><span>369</span><span>370</span><span>371</span><span>372</span><span>373</span><span>374</span><span>375</span><span>376</span><span>377</span><span>378</span><span>379</span><span>380</span><span>381</span><span>382</span><span>383</span><span>384</span><span>385</span><span>386</span><span>387</span><span>388</span><span>389</span><span>390</span><span>391</span><span>392</span><span>393</span><span>394</span><span>395</span><span>396</span><span>397</span><span>398</span><span>399</span><span>400</span><span>401</span><span>402</span><span>403</span><span>404</span><span>405</span><span>406</span><span>407</span><span>408</span><span>409</span><span>410</span><span>411</span><span>412</span><span>413</span><span>414</span><span>415</span><span>416</span><span>417</span><span>418</span><span>419</span><span>420</span><span>421</span><span>422</span><span>423</span><span>424</span><span>425</span><span>426</span></div>
+          <pre class="code-src"><span class="kw">function</span> <span class="fn">renderCart</span>(){
+  <span class="kw">if</span> (!els.cartCount) <span class="kw">return</span>;
+  <span class="kw">const</span> items = <span class="fn">cartItems</span>();
+  els.cartCount.textContent = String(<span class="fn">cartCount</span>());
+
+  <span class="kw">if</span> (els.cartList) els.cartList.innerHTML = <span class="str">""</span>;
+
+  <span class="kw">if</span> (items.length === <span class="num">0</span>){
+    <span class="kw">if</span> (els.cartEmpty) els.cartEmpty.hidden = <span class="kw">false</span>;
+    <span class="kw">if</span> (els.cartTotals) els.cartTotals.hidden = <span class="kw">true</span>;
+    <span class="kw">return</span>;
+  }
+  <span class="kw">if</span> (els.cartEmpty) els.cartEmpty.hidden = <span class="kw">true</span>;
+  <span class="kw">if</span> (els.cartTotals) els.cartTotals.hidden = <span class="kw">false</span>;
+
+  items.<span class="fn">forEach</span>(({ item, qty }) =&gt; {
+    <span class="kw">const</span> row = document.<span class="fn">createElement</span>(<span class="str">"div"</span>);
+    row.className = <span class="str">"cartRow"</span>;
+    row.innerHTML = <span class="str">`
+      &lt;div&gt;
+        &lt;div class="cartRow__name"&gt;${escapeHtml(item.name)}&lt;/div&gt;
+        &lt;div class="cartRow__sub"&gt;${escapeHtml(item.weight)} • ${RUB(item.price)}&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="qty"&gt;
+        &lt;button data-dec="${item.id}"&gt;−&lt;/button&gt;
+        &lt;div&gt;${qty}&lt;/div&gt;
+        &lt;button data-inc="${item.id}"&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    `</span>;
+    row.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, (e) =&gt; {
+      <span class="kw">if</span> (e.target?.dataset?.dec) <span class="fn">addToCart</span>(e.target.dataset.dec, -<span class="num">1</span>);
+      <span class="kw">if</span> (e.target?.dataset?.inc) <span class="fn">addToCart</span>(e.target.dataset.inc, +<span class="num">1</span>);
+    });
+    els.cartList?.<span class="fn">appendChild</span>(row);
+  });
+
+  <span class="kw">const</span> { sum, adjust, grand } = <span class="fn">computeTotals</span>();
+  <span class="kw">if</span> (els.sumTotal) els.sumTotal.textContent = <span class="fn">RUB</span>(sum);
+  <span class="kw">if</span> (els.sumAdjust) els.sumAdjust.textContent = adjust &gt; <span class="num">0</span>
+    ? <span class="str">`+ ${RUB(adjust)}`</span> : adjust &lt; <span class="num">0</span> ? <span class="str">`− ${RUB(Math.abs(adjust))}`</span> : <span class="fn">RUB</span>(<span class="num">0</span>);
+  <span class="kw">if</span> (els.sumGrand) els.sumGrand.textContent = <span class="fn">RUB</span>(grand);
+}
+
+<span class="cm">/* ---------- interactions ---------- */</span>
+<span class="kw">function</span> <span class="fn">addToCart</span>(id, delta){
+  <span class="kw">const</span> key = String(id);
+  <span class="kw">const</span> cur = state.cart[key] || <span class="num">0</span>;
+  <span class="kw">const</span> next = cur + delta;
+  <span class="kw">if</span> (next &lt;= <span class="num">0</span>) <span class="kw">delete</span> state.cart[key];
+  <span class="kw">else</span> state.cart[key] = next;
+
+  <span class="fn">save</span>();          <span class="cm">// запись в localStorage</span>
+  <span class="fn">renderCart</span>();
+
+  <span class="kw">const</span> it = MENU.<span class="fn">find</span>(x =&gt; String(x.id) === String(id));
+  <span class="kw">if</span> (delta &gt; <span class="num">0</span>) <span class="fn">toast</span>(<span class="str">`Добавлено: ${it?.name || "блюдо"}`</span>);
+}
+
+<span class="cm">// Очистка корзины</span>
+els.clearCartBtn?.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, () =&gt; {
+  state.cart = {};
+  <span class="fn">save</span>();
+  <span class="fn">renderCart</span>();
+  <span class="fn">toast</span>(<span class="str">"Корзина очищена"</span>);
+});</pre>
+        </div>
+      </div>
+      <p class="code-caption">addToCart изменяет объект state.cart, вызывает save() и обновляет UI; данные сохраняются между сессиями браузера</p>
+    </div>
+
+    <p class="note" style="margin-top:24px">
+      Исходный файл: <code>public/app.js</code>. Ключ корзины в localStorage: <code>antalya_cart_v1</code>.
+      Формат: JSON-объект <code>{ "menu_item_id": quantity }</code>. После оформления заказа корзина очищается и снова сохраняется через <code>save()</code>.
+    </p>
+  </div>
+</body>
+</html>

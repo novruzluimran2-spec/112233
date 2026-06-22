@@ -451,6 +451,15 @@ img{ max-width:100%; display:block; }
   font-weight:900;
 }
 .mapCard{ overflow:hidden; }
+.mapFrame{
+  width: 100%;
+  height: 280px;
+  border: 0;
+  border-radius: var(--radius2);
+  display: block;
+  background: color-mix(in oklab, var(--panel2) 65%, transparent);
+}
+.mapLink{ margin: 10px 0 0; }
 .mapPlaceholder{
   height: 240px;
   border-radius: var(--radius2);

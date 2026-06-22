@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Рисунок — Ручной процесс AS-IS</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Рисунок X — Блок-схема текущего бизнес-процесса приёма и обработки заказа (ручной способ)</p>
+    <div class="legend">
+      <span><i style="background:#fee2e2;border-color:#dc2626"></i> задержка / простой</span>
+      <span><i style="background:#fef3c7;border-color:#d97706"></i> риск ошибки</span>
+    </div>
+    <div class="flow">
+      <div class="box start">Клиент хочет заказать</div>
+      <div class="arrow"></div>
+      <div class="box">Канал: телефон / визит / мессенджер</div>
+      <div class="arrow"></div>
+      <div class="row">
+        <div class="branch">
+          <div class="box delay">Ожидание ответа<br/>⏱ 2–5 мин</div>
+          <div class="arrow"></div>
+        </div>
+        <div class="branch">
+          <div class="box delay">Ожидание официанта<br/>⏱ 3–10 мин</div>
+          <div class="arrow"></div>
+        </div>
+        <div class="branch">
+          <div class="box delay">Ожидание в мессенджере<br/>⏱ 15–60 мин</div>
+          <div class="arrow"></div>
+        </div>
+      </div>
+      <div class="box">Устный приём заказа ⏱ 3–7 мин</div>
+      <div class="arrow"></div>
+      <div class="box warn">Запись на бумаге / в блокнот ⏱ 2–5 мин</div>
+      <div class="arrow"></div>
+      <div class="box">Данные полные?</div>
+      <div class="arrow"></div>
+      <div class="box delay">Уточнение по телефону ⏱ 5–15 мин</div>
+      <div class="arrow"></div>
+      <div class="box warn">Передача на кухню (устно / бланк) ⏱ 3–8 мин</div>
+      <div class="arrow"></div>
+      <div class="box delay">Очередь на кухне ⏱ 5–15 мин</div>
+      <div class="arrow"></div>
+      <div class="box">Приготовление ⏱ 20–40 мин</div>
+      <div class="arrow"></div>
+      <div class="row">
+        <div class="branch">
+          <div class="box">Доставка ⏱ 20–45 мин</div>
+        </div>
+        <div class="branch">
+          <div class="box delay">Самовывоз: звонки «готово?» ⏱ 5–20 мин</div>
+        </div>
+        <div class="branch">
+          <div class="box">В зале ⏱ 5–15 мин</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="box">Оплата ⏱ 2–5 мин</div>
+      <div class="arrow"></div>
+      <div class="box end">Заказ закрыт</div>
+      <div class="arrow"></div>
+      <div class="box delay">История в блокноте или теряется</div>
+    </div>
+    <table class="data">
+      <tr><th>Этап</th><th>Типичная задержка</th></tr>
+      <tr><td>Ожидание ответа</td><td>2–60 мин</td></tr>
+      <tr><td>Приём и запись</td><td>5–12 мин</td></tr>
+      <tr><td>Передача на кухню</td><td>3–8 мин</td></tr>
+      <tr><td>Готовка</td><td>20–40 мин</td></tr>
+      <tr><td><strong>Полный цикл (ориентир)</strong></td><td><strong>45–120+ мин</strong></td></tr>
+    </table>
+  </div>
+</body>
+</html>

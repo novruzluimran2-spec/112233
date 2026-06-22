@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Технологический стек Antalya</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
+    @media (max-width: 700px) { .stack { grid-template-columns: 1fr; } }
+    .layer {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px 18px;
+      background: #f8fafc;
+    }
+    .layer h3 { margin: 0 0 10px; font-size: 14px; color: #1e40af; }
+    .layer ul { margin: 0; padding-left: 18px; font-size: 13px; }
+    .layer li { margin: 4px 0; }
+    .arch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 28px 0;
+      font-size: 13px;
+    }
+    .arch-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .arch-box {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 2px solid #334155;
+      background: #fff;
+      min-width: 140px;
+      text-align: center;
+    }
+    .arch-box.fe { background: #fef3c7; border-color: #d97706; }
+    .arch-box.be { background: #dcfce7; border-color: #16a34a; }
+    .arch-box.db { background: #dbeafe; border-color: #2563eb; }
+    .arch-box.host { background: #f3e8ff; border-color: #9333ea; }
+  </style>
+</head>
+<body>
+  <nav class="nav no-print"><a href="index.html">← Все материалы</a></nav>
+  <div class="page">
+    <p class="caption">Таблица / рисунок — Технологический стек и архитектура веб-приложения «Antalya»</p>
+
+    <div class="arch">
+      <div class="arch-row">
+        <div class="arch-box fe">Браузер<br/>HTML + CSS + JS</div>
+      </div>
+      <div class="arrow"></div>
+      <div class="arch-row">
+        <div class="arch-box be">Laravel 13 (PHP 8.3)<br/>Blade + REST API</div>
+      </div>
+      <div class="arrow"></div>
+      <div class="arch-row">
+        <div class="arch-box db">MySQL<br/>Eloquent ORM</div>
+      </div>
+      <div class="arrow"></div>
+      <div class="arch-row">
+        <div class="arch-box host">Railway<br/>FrankenPHP / Railpack</div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="layer">
+        <h3>Backend</h3>
+        <ul>
+          <li>PHP 8.3, Laravel Framework 13</li>
+          <li>Eloquent ORM, миграции, сидеры</li>
+          <li>REST API: <code>/api/menu</code>, <code>/api/orders</code>, <code>/api/reservations</code></li>
+          <li>Админ-панель: Laravel Auth, bcrypt</li>
+          <li>Расширение <code>pdo_mysql</code></li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h3>Frontend (клиентская часть)</h3>
+        <ul>
+          <li>Blade-шаблоны → статические HTML-страницы</li>
+          <li><code>public/styles.css</code> — оформление</li>
+          <li><code>public/app.js</code> — меню, корзина, тема</li>
+          <li>Корзина: localStorage</li>
+          <li>Tailwind 4 + Vite (сборка в dev)</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h3>База данных</h3>
+        <ul>
+          <li>MySQL (production, Railway)</li>
+          <li>SQLite (локальная разработка)</li>
+          <li>Таблицы: menu_*, orders, order_items, reservations, users</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h3>Развёртывание</h3>
+        <ul>
+          <li>Railway (Railpack, FrankenPHP)</li>
+          <li><code>start-container.sh</code>: migrate + db:seed</li>
+          <li>GitHub: CI (PHPUnit)</li>
+          <li>Переменные: APP_KEY, DB_*, MYSQL_*</li>
+        </ul>
+      </div>
+    </div>
+
+    <table class="data" style="margin-top:24px">
+      <tr><th>Компонент</th><th>Технология</th><th>Назначение</th></tr>
+      <tr><td>Сервер приложений</td><td>Laravel + FrankenPHP</td><td>Маршрутизация, API, админка</td></tr>
+      <tr><td>Хранение данных</td><td>MySQL</td><td>Меню, заказы, брони, пользователи</td></tr>
+      <tr><td>Клиент</td><td>Vanilla JS</td><td>Интерактивность без SPA-фреймворка</td></tr>
+      <tr><td>Аутентификация</td><td>Laravel Session + bcrypt</td><td>Доступ в /admin</td></tr>
+    </table>
+  </div>
+</body>
+</html>

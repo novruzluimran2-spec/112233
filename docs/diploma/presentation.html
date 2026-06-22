@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Презентация — Диплом Antalya</title>
+  <link rel="stylesheet" href="presentation.css"/>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <!-- 1 -->
+    <section class="slide slide--title active" data-n="1">
+      <p class="org">ГАПОУ «Волгоградский социально-педагогический колледж»</p>
+      <p class="spec">Специальность 09.02.07 — Информационные системы и программирование</p>
+      <h1>Разработка сайта для ресторана «Анталия»</h1>
+      <p class="author">Выполнил: студент группы 43 Дд<br/>Новрузлу Имран Мехман Оглы</p>
+      <p class="supervisor">Руководитель: Авдосиева Светалана Васильевна</p>
+      <p class="year">Волгоград, 2026</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-n="2">
+      <h2>Актуальность темы</h2>
+      <ul>
+        <li>Рестораны без собственного сайта теряют клиентов конкурентам</li>
+        <li>Заказы по телефону и в мессенджерах — медленно и с ошибками</li>
+        <li>Агрегаторы доставки берут высокие комиссии</li>
+        <li>Гость ожидает: меню, цены и заказ — в несколько кликов с телефона</li>
+      </ul>
+      <p class="accent">Ресторан «Анталия» нуждается в собственной цифровой платформе</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-n="3">
+      <h2>Цель и задачи</h2>
+      <p><strong>Цель:</strong> разработать сайт ресторана «Анталия» с автоматизацией онлайн-заказа и бронирования столиков.</p>
+      <p><strong>Задачи:</strong></p>
+      <ol>
+        <li>Изучить понятие и классификацию сайтов</li>
+        <li>Проанализировать инструментарий разработки</li>
+        <li>Описать этапы создания сайта</li>
+        <li>Провести подготовительные работы для «Анталии»</li>
+        <li>Спроектировать структуру и интерфейсы</li>
+        <li>Реализовать и развернуть готовый продукт</li>
+      </ol>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-n="4">
+      <h2>Объект, предмет, база</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Объект</h3>
+          <p>Процесс разработки корпоративного сайта для предприятия общественного питания</p>
+        </div>
+        <div class="card">
+          <h3>Предмет</h3>
+          <p>Технология создания сайта для ресторана «Анталия»</p>
+        </div>
+        <div class="card">
+          <h3>Проблема</h3>
+          <p>Противоречие между потребностью гостей в цифровом сервисе и отсутствием полнофункционального сайта</p>
+        </div>
+        <div class="card">
+          <h3>База</h3>
+          <p>Ресторан турецкой кухни «Анталия»</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-n="5">
+      <h2>Проблема AS-IS (до сайта)</h2>
+      <ul>
+        <li>Заказы — по телефону и в мессенджерах</li>
+        <li>Приём заказа: 5–10 минут, очередь на линии в часы пик</li>
+        <li>Ошибки при диктовке адреса и состава заказа</li>
+        <li>Нет единой базы клиентов и истории заказов</li>
+        <li>Бронирование — только звонком администратору</li>
+      </ul>
+      <p class="muted">→ Рост нагрузки на персонал, потеря выручки, снижение лояльности</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-n="6">
+      <h2>Решение TO-BE (после внедрения)</h2>
+      <ul>
+        <li>Гость самостоятельно изучает меню и оформляет заказ онлайн</li>
+        <li>Данные сразу попадают в MySQL через REST API</li>
+        <li>Администратор видит заказы в защищённой панели</li>
+        <li>Онлайн-бронирование столиков + файл календаря .ics</li>
+        <li>Круглосуточный доступ без ожидания ответа оператора</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-n="7">
+      <h2>Технологический стек</h2>
+      <div class="stack">
+        <div class="stack-item fe"><strong>Frontend</strong><br/>HTML, CSS, JavaScript (ES6)<br/>Blade, Tailwind CSS 4</div>
+        <div class="stack-item be"><strong>Backend</strong><br/>PHP 8.3, Laravel 13<br/>REST API, Eloquent ORM</div>
+        <div class="stack-item db"><strong>БД</strong><br/>MySQL (production)<br/>SQLite (разработка)</div>
+        <div class="stack-item host"><strong>Деплой</strong><br/>Railway, FrankenPHP<br/>GitHub, PHPUnit CI</div>
+      </div>
+      <p class="muted">Архитектура: клиент–сервер, паттерн MVC</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-n="8">
+      <h2>База данных MySQL</h2>
+      <ul>
+        <li><code>menu_categories</code> → <code>menu_items</code> (1:N)</li>
+        <li><code>orders</code> → <code>order_items</code> → <code>menu_items</code></li>
+        <li><code>reservations</code> — бронирования столиков</li>
+        <li><code>users</code> — администраторы (bcrypt)</li>
+      </ul>
+      <p>Миграции Laravel + сидер с 15 блюдами турецкой кухни</p>
+      <p class="link-note">Подробнее: <code>03-er-diagram.html</code></p>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-n="9">
+      <h2>Публичная часть сайта</h2>
+      <ul>
+        <li>Главная — о ресторане, акции, популярные блюда</li>
+        <li>Меню — каталог с поиском и фильтром по категориям</li>
+        <li>Корзина и оформление заказа (доставка / самовывоз)</li>
+        <li>Бронирование столика</li>
+        <li>Разделы «О нас» и «Контакты»</li>
+      </ul>
+      <p class="accent">Адаптивная вёрстка — приоритет мобильных устройств</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-n="10">
+      <h2>REST API</h2>
+      <table class="tbl">
+        <tr><th>Метод</th><th>Маршрут</th><th>Назначение</th></tr>
+        <tr><td>GET</td><td>/api/menu</td><td>Каталог блюд из БД</td></tr>
+        <tr><td>POST</td><td>/api/orders</td><td>Создание заказа</td></tr>
+        <tr><td>POST</td><td>/api/reservations</td><td>Бронирование</td></tr>
+      </table>
+      <p>Формат обмена — JSON. Валидация на сервере в <code>OrderController</code></p>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-n="11">
+      <h2>Корзина и localStorage</h2>
+      <ul>
+        <li>Нативный JavaScript без React/Vue</li>
+        <li>Состояние корзины: <code>antalya_cart_v1</code> в localStorage</li>
+        <li>Добавление блюд без перезагрузки страницы</li>
+        <li>Отправка заказа через <code>fetch</code> → POST /api/orders</li>
+        <li>Данные не теряются при обновлении страницы</li>
+      </ul>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-n="12">
+      <h2>Админ-панель</h2>
+      <ul>
+        <li>URL: <code>/admin</code> — доступ только после авторизации</li>
+        <li>Laravel Auth + сессии + bcrypt</li>
+        <li>Список заказов, смена статуса (new → accepted → completed)</li>
+        <li>Управление бронированиями и меню</li>
+        <li>Защита CSRF, middleware на маршрутах</li>
+      </ul>
+      <p class="link-note">Макет: <code>08-admin-orders.html</code></p>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-n="13">
+      <h2>Развёртывание на Railway</h2>
+      <ul>
+        <li>Облачный хостинг Railway + MySQL</li>
+        <li>Railpack / FrankenPHP — быстрая обработка запросов</li>
+        <li>Деплой из GitHub-репозитория</li>
+        <li><code>start-container.sh</code>: migrate + db:seed при запуске</li>
+        <li>HTTPS, переменные APP_KEY, DB_*, MYSQL_*</li>
+      </ul>
+      <p class="accent">Сайт работает в сети Интернет и принимает реальные заказы</p>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-n="14">
+      <h2>Результаты работы</h2>
+      <ul>
+        <li>✅ Сайт разработан и развёрнут</li>
+        <li>✅ Автоматизированы заказ и бронирование</li>
+        <li>✅ Снижена нагрузка на персонал</li>
+        <li>✅ Заказы хранятся в единой БД</li>
+        <li>✅ Настроено автотестирование (PHPUnit, GitHub Actions)</li>
+      </ul>
+      <p><strong>Практическая значимость:</strong> готовый продукт для реального предприятия</p>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-n="15">
+      <h2>Перспективы развития</h2>
+      <ul>
+        <li>Онлайн-оплата (эквайринг)</li>
+        <li>Личный кабинет и программа лояльности</li>
+        <li>Интеграция со складским учётом</li>
+        <li>SMS/Telegram-уведомления о статусе заказа</li>
+        <li>Аналитика продаж и отчёты</li>
+      </ul>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide slide--title" data-n="16">
+      <h1>Спасибо за внимание!</h1>
+      <p class="author">Готов ответить на вопросы</p>
+      <p class="muted" style="margin-top:24px">Демонстрация: главная → меню → корзина → админ-панель</p>
+    </section>
+  </div>
+
+  <div class="controls no-print">
+    <a href="index.html">Материалы</a>
+    <a href="speech-15min.html">Речь</a>
+    <button type="button" id="prev">← Назад</button>
+    <span id="counter">1 / 16</span>
+    <button type="button" id="next">Вперёд →</button>
+    <span class="hint">← → или пробел</span>
+  </div>
+
+  <script src="presentation.js"></script>
+</body>
+</html>

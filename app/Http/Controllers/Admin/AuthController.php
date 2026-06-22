@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function showLogin(): View|RedirectResponse
     {
-        if (Auth::check()) {
+        if (Auth::check() && Auth::user()->isAdmin()) {
             return redirect()->route('admin.orders.index');
         }
 
@@ -26,9 +26,17 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::attempt($credentials, (bool) $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, (bool) $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Неверный email или пароль.',
+            ])->onlyInput('email');
+        }
+
+        if (! Auth::user()->isAdmin()) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Доступ в админ-панель только для администратора.',
             ])->onlyInput('email');
         }
 
